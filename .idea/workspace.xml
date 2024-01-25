@@ -5,6 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f08258fe-6018-4dc7-9a8d-0237699dd45a" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/aws.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/aws.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/sgbd/tp/BufferManagerInterface.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/sgbd/tp/BufferManagerInterface.java" afterDir="false" />
     </list>
@@ -69,7 +70,7 @@
       <recent name="sgbd.tp" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.BufferManagerInterfaceTest.test_clock">
+  <component name="RunManager" selected="JUnit.BufferManagerInterfaceTest">
     <configuration name="BufferManagerInterfaceTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="SGBD" />
       <extension name="coverage">
@@ -135,8 +136,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.BufferManagerInterfaceTest.test_clock" />
         <item itemvalue="JUnit.BufferManagerInterfaceTest" />
+        <item itemvalue="JUnit.BufferManagerInterfaceTest.test_clock" />
         <item itemvalue="JUnit.BufferManagerInterfaceTest.test_fifo" />
         <item itemvalue="JUnit.BufferManagerInterfaceTest.test_lru" />
       </list>
@@ -174,6 +175,15 @@
       <configuration name="JUnit">
         <watch expression="pages[pointer]" language="JAVA" />
         <watch expression="buffer" language="JAVA" />
+        <watch expression="pageId" />
+        <watch expression="hand.pageId" language="JAVA" />
+        <watch expression="hand.accessed" language="JAVA" />
+        <watch expression="hand.next" language="JAVA" />
+        <watch expression="hand" language="JAVA" />
+        <watch expression="hand" language="JAVA" />
+        <watch expression="hand" language="JAVA" />
+        <watch expression="node.accessed" language="JAVA" />
+        <watch expression="node.accessed" language="JAVA" />
       </configuration>
     </watches-manager>
   </component>
