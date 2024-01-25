@@ -59,7 +59,7 @@ public sealed interface BufferManagerInterface {
         private class Node {
             String pageId;
             boolean accessed;
-            Node next, prev;
+            Node next;
 
             public Node(String pageId) {
                 this.pageId = pageId;
@@ -67,73 +67,22 @@ public sealed interface BufferManagerInterface {
             }
         }
 
-        private static Map<String, Node> buffer;
-        private static Node head, tail;
-        private static int size;
+        private static Node head;
+        private static Node hand;
         private static int misses;
-
-        public Clock {
-            buffer = new HashMap<>();
-            size = 0;
-        }
+        private static int size;
 
         @Override
         public void accessPage(String pageId) {
-            if (!buffer.containsKey(pageId)) {
-                misses++; // Increment misses if the page is not in the buffer
-                if (size == capacity) {
-                    replacePage(); // Replace a page if the buffer is full
-                }
-                addPage(pageId); // Add the new page to the buffer
-            } else {
-                Node pageNode = buffer.get(pageId);
-                pageNode.accessed = true; // Mark the page as accessed
-            }
+            // TODO: Implement
         }
 
-        private void replacePage() {
-            while (head.accessed) {
-                head.accessed = false; // Reset the flag
-                moveToEnd(head); // Move the page to the end of the list
-            }
-            // Remove the least recently used (unaccessed) page
-            Node leastRecentlyUsed = head;
-            removePage(leastRecentlyUsed);
+        private void insert(String pageId) {
+
         }
 
-        private void addPage(String pageId) {
-            Node newNode = new Node(pageId);
-            buffer.put(pageId, newNode);
-            if (size == 0) {
-                head = tail = newNode;
-            } else {
-                tail.next = newNode;
-                newNode.prev = tail;
-                tail = newNode;
-            }
-            size++;
-        }
-
-        private void removePage(Node node) {
-            buffer.remove(node.pageId);
-            if (head == tail) {
-                head = tail = null;
-            } else {
-                head = head.next;
-                head.prev = null;
-            }
-            size--;
-        }
-
-        private void moveToEnd(Node node) {
-            if (tail == node) return;
-            if (head == node) head = head.next;
-            if (node.prev != null) node.prev.next = node.next;
-            if (node.next != null) node.next.prev = node.prev;
-            tail.next = node;
-            node.prev = tail;
-            node.next = null;
-            tail = node;
+        private Node find(String pageId) {
+            return null;
         }
 
         public int misses() {

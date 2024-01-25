@@ -5,11 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f08258fe-6018-4dc7-9a8d-0237699dd45a" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/aws.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/aws.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/sgbd/tp/BufferManagerInterface.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/sgbd/tp/BufferManagerInterface.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/sgbd/tp/BufferManagerInterfaceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/sgbd/tp/BufferManagerInterfaceTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,9 +24,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 3
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
   <component name="ProjectId" id="2bPf3aIHEVy57GNOABevbO1V47M" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
@@ -42,12 +39,15 @@
     "JUnit.BufferManagerInterfaceTest.test_clock.executor": "Run",
     "JUnit.BufferManagerInterfaceTest.test_fifo.executor": "Run",
     "JUnit.BufferManagerInterfaceTest.test_lru.executor": "Run",
+    "Maven.SGBD [clean].executor": "Run",
+    "Maven.SGBD [install].executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
     "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -57,7 +57,7 @@
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "reference.settings.project.maven.importing",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -145,7 +145,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="jdk-21.0.1-openjdk-21.0.1-f644763e9732-f98dd351" />
+        <option value="jdk-19.0.2-corretto-19.0.2-3183f394aec4-f0552fc0" />
         <option value="jdk-21.0.2-openjdk-21.0.2-f644763e9732-c0c073db" />
       </set>
     </attachedChunks>
@@ -160,6 +160,9 @@
       <updated>1706117395655</updated>
       <workItem from="1706117396803" duration="1900000" />
       <workItem from="1706121440210" duration="9603000" />
+      <workItem from="1706168769344" duration="2835000" />
+      <workItem from="1706171654829" duration="92000" />
+      <workItem from="1706171792345" duration="1266000" />
     </task>
     <servers />
   </component>
