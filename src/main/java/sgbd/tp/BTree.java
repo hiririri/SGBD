@@ -15,6 +15,11 @@ public class BTree {
     public void insert(int key) {
         System.out.println("Inserted key ==> " + key);
 
+        if (root.search(key)) {
+            System.out.println("Key " + key + " already exists in the tree");
+            return;
+        }
+
         BTreeNode r = root;
 
         if (r.keys.size() == ORDER - 1) {
