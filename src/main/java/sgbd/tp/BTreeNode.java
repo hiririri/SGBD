@@ -1,128 +1,234 @@
 package sgbd.tp;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-
-import static sgbd.tp.BTree.ORDER;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class BTreeNode {
-    String keysValues;
-    List<Integer> keys = new ArrayList<>();
-    List<BTreeNode> children = new ArrayList<>();
-    boolean leaf = true;
-    BTreeNode parent;
+    private final int order;
+    private BTree bTree;
+    private int height;
+    private BTreeNode parent;
+    private List<Integer> keys;
+    private Map<Integer, BTreeNode> children;
 
-    // Constructor
-    BTreeNode(boolean leaf) {
-        this.leaf = leaf;
+    public BTreeNode(int order, BTreeNode parent, BTree bTree) {
+        this(order, bTree);
+        if (parent == null) {
+            throw new IllegalArgumentException("Parent cannot be null");
+        }
+        this.parent = parent;
+        height = parent.height + 1;
     }
 
-    // Insert key within a node
-    void insertNonFull(int key) {
-        int index = keys.size() - 1;
-        if (leaf) {
-            // Find the position to insert the new key
-            while (index >= 0 && keys.get(index) > key) {
-                index--;
+    public BTreeNode(int order, BTree bTree) {
+        this.bTree = bTree;
+        this.order = order;
+        keys = new ArrayList<>();
+        children = new HashMap<>();
+        parent = null;
+        height = 1;
+    }
+
+    public BTreeNode(BTreeNode BTreeNode) {
+        bTree = BTreeNode.bTree;
+        order = BTreeNode.order;
+        keys = new ArrayList<>(BTreeNode.keys);
+        children = new HashMap<>(BTreeNode.children);
+        parent = BTreeNode.parent;
+        height = BTreeNode.height;
+    }
+
+    public int search(int key) {
+        if (keys.contains(key)) {
+            return height;
+        }
+        if (children.isEmpty()) {
+            return -1;
+        }
+        for (BTreeNode child : children.values()) {
+            int result = child.search(key);
+            if (result != -1) {
+                return result;
             }
-            // Insert the new key at found position
-            keys.add(index + 1, key);
-            keysValues = keys.toString();
+        }
+        return -1;
+    }
+
+    public void insert(int key) {
+        if (isFull()) {
+            handleFullNodeInsert(key);
         } else {
-            // Find the child which is going to have the new key
-            while (index >= 0 && keys.get(index) > key) {
-                index--;
+            handleNonFullNodeInsert(key);
+        }
+    }
+
+    private boolean isFull() {
+        return keys.size() == order - 1;
+    }
+
+    private void handleFullNodeInsert(int key) {
+        if (isLeaf()) {
+            insertAndUpKey(key);
+        } else {
+            int indexChild = getIndexChildToInsert(key);
+            if (!children.containsKey(indexChild)) {
+                children.put(indexChild, new BTreeNode(order, this, bTree));
             }
-            index++;
-            // Check if the found child is full
-            if (children.get(index).keys.size() == ORDER - 1) {
-                if (!children.get(index).leaf) {
-                    children.get(index).insertNonFull(key);
+            children.get(indexChild).insert(key);
+        }
+    }
+
+    private void handleNonFullNodeInsert(int key) {
+        if (isLeaf()) {
+            keys.add(key);
+            keys.sort(Integer::compareTo);
+        } else {
+            int indexChild = getIndexChildToInsert(key);
+            if (!children.containsKey(indexChild)) {
+                children.put(indexChild, new BTreeNode(order, this, bTree));
+            }
+            children.get(indexChild).insert(key);
+        }
+    }
+
+    private List<BTreeNode> insertAndUpKey(int key) {
+        List<Integer> tmpSortedList = Stream.concat(keys.stream(), Stream.of(key)).sorted().collect(Collectors.toList());
+
+        int medianKeyIndexInTmpSortedList = tmpSortedList.size() / 2;
+        int medianKey = tmpSortedList.get(medianKeyIndexInTmpSortedList);
+
+        if (parent == null) {
+            BTreeNode parentBTreeNode = new BTreeNode(order, bTree);
+            setParent(parentBTreeNode);
+            bTree.setRoot(parentBTreeNode);
+        }
+
+        BTreeNode leftCurrentBTreeNode = new BTreeNode(this);
+        BTreeNode rightCurrentBTreeNode = new BTreeNode(order, parent, bTree);
+
+        leftCurrentBTreeNode.keys = new ArrayList<>(tmpSortedList.subList(0, medianKeyIndexInTmpSortedList));
+        rightCurrentBTreeNode.keys = new ArrayList<>(tmpSortedList.subList(medianKeyIndexInTmpSortedList + 1, tmpSortedList.size()));
+
+        if (parent.isFull()) {
+            BTreeNode snapshotParentBTreeNode = new BTreeNode(parent);
+            List<BTreeNode> splittedBTreeNodes = parent.insertAndUpKey(medianKey);
+            int indexToAddMedianKey = insertMedianKeyToParent(medianKey, snapshotParentBTreeNode);
+
+            BTreeNode leftSplittedBTreeNode = splittedBTreeNodes.get(0);
+            leftSplittedBTreeNode.children.clear();
+            BTreeNode rightSplittedBTreeNode = splittedBTreeNodes.get(1);
+            rightSplittedBTreeNode.children.clear();
+
+            snapshotParentBTreeNode.children.put(indexToAddMedianKey, leftCurrentBTreeNode);
+            snapshotParentBTreeNode.children.put(indexToAddMedianKey + 1, rightCurrentBTreeNode);
+
+            snapshotParentBTreeNode.children.forEach((indexChild, child) -> {
+                int cutOffPoint = snapshotParentBTreeNode.children.size() / 2;
+                if (indexChild < cutOffPoint) {
+                    leftSplittedBTreeNode.children.put(indexChild, child);
+                    if (child.equals(leftCurrentBTreeNode)) {
+                        leftCurrentBTreeNode.setParent(leftSplittedBTreeNode);
+                    } else {
+                        rightCurrentBTreeNode.setParent(leftSplittedBTreeNode);
+                    }
                 } else {
-                    List<Integer> tempKeysBeforeSplit = new ArrayList<>(children.get(index).keys);
-                    tempKeysBeforeSplit.add(key);
-                    tempKeysBeforeSplit.sort(Integer::compareTo);
-                    splitChild(index, children.get(index), tempKeysBeforeSplit);
+                    rightSplittedBTreeNode.children.put(indexChild - cutOffPoint, child);
+                    if (child.equals(leftCurrentBTreeNode)) {
+                        leftCurrentBTreeNode.setParent(rightSplittedBTreeNode);
+                    } else {
+                        rightCurrentBTreeNode.setParent(rightSplittedBTreeNode);
+                    }
                 }
-            } else {
-                children.get(index).insertNonFull(key);
+            });
+        } else {
+            int indexToAddMedianKey = insertMedianKeyToParent(medianKey, parent);
+            parent.children.put(indexToAddMedianKey, leftCurrentBTreeNode);
+            parent.children.put(indexToAddMedianKey + 1, rightCurrentBTreeNode);
+        }
+        return List.of(leftCurrentBTreeNode, rightCurrentBTreeNode);
+    }
+
+    private int insertMedianKeyToParent(int medianKey, BTreeNode parentBTreeNode) {
+        int indexToAddMedianKey = 0;
+
+        for (int i = 0; i <= parentBTreeNode.keys.size(); i++) {
+            if (i == parentBTreeNode.keys.size()) {
+                parentBTreeNode.keys.add(medianKey);
+                indexToAddMedianKey = i;
+                break;
+            }
+            if (medianKey < parentBTreeNode.keys.get(i)) {
+                parentBTreeNode.keys.add(i, medianKey);
+                indexToAddMedianKey = i;
+                break;
             }
         }
+        if (!parentBTreeNode.children.isEmpty()) {
+            for (int i = parentBTreeNode.keys.size(); i >= indexToAddMedianKey + 2; i--) {
+                parentBTreeNode.children.put(i, parentBTreeNode.children.get(i - 1));
+            }
+            parentBTreeNode.children.remove(indexToAddMedianKey);
+            parentBTreeNode.children.remove(indexToAddMedianKey + 1);
+        }
+        return indexToAddMedianKey;
     }
 
-    // Split the child y of this node. i is index of y in child array children.
-    void splitChild(int indexLeftChild, BTreeNode leftChild, List<Integer> tempKeysBeforeSplit) {
-        BTreeNode rightChild = new BTreeNode(leftChild.leaf);
-
-        leftChild.keys = new ArrayList<>(tempKeysBeforeSplit.subList(0, ORDER / 2));
-        leftChild.keysValues = leftChild.keys.toString();
-        leftChild.parent = this;
-        rightChild.keys = new ArrayList<>(tempKeysBeforeSplit.subList(ORDER / 2 + 1, ORDER));
-        rightChild.keysValues = rightChild.keys.toString();
-        rightChild.parent = this;
-
-        if (!leftChild.leaf) {
-            int size = leftChild.children.size();
-            rightChild.children = new ArrayList<>(leftChild.children.subList(size / 2, size));
-            rightChild.children.forEach(c -> c.parent = rightChild);
-            leftChild.children = new ArrayList<>(leftChild.children.subList(0, size / 2));
-            leftChild.children.forEach(c -> c.parent = leftChild);
-        }
-
-        children.add(indexLeftChild + 1, rightChild);
-        // Add the median key to parent node
-        int median = tempKeysBeforeSplit.get(ORDER / 2);
-        keys.add(indexLeftChild, median);
-        keysValues = keys.toString();
-
-        if (keys.size() == ORDER && parent == null) {
-            System.out.println("Splitting root");
-            BTreeNode s = new BTreeNode(false);
-            s.children.add(this);
-            List<Integer> tempKeysBeforeSplitRoot = new ArrayList<>(keys);
-            tempKeysBeforeSplitRoot.sort(Integer::compareTo);
-            keys.remove(Integer.valueOf(median));
-            keysValues = keys.toString();
-            s.splitChild(0, this, tempKeysBeforeSplitRoot);
-            BTree.root = s;
-        }
-        if (keys.size() == ORDER) {
-            tempKeysBeforeSplit = new ArrayList<>(keys);
-            keys.remove(Integer.valueOf(median));
-            keysValues = keys.toString();
-            parent.splitChild(parent.children.indexOf(this), this, tempKeysBeforeSplit);
-        }
+    private int getIndexChildToInsert(int key) {
+        int index = Collections.binarySearch(keys, key);
+        return index < 0 ? -index - 1 : index;
     }
 
-    // Method to search a key in the tree
-    boolean isInsertable(int key) {
-        int i = 0;
-        while (i < keys.size() && key > keys.get(i)) {
-            i++;
+    private boolean isLeaf() {
+        return children.isEmpty();
+    }
+
+    private void setParent(BTreeNode parent) {
+        this.parent = parent;
+        height = parent.height + 1;
+    }
+
+    private String printTree(String prefix, boolean isTail) {
+        StringBuilder builder = new StringBuilder();
+
+        builder.append(prefix).append(isTail ? "└── " : "├── ").append(keys.toString()).append("\n");
+        for (int i = 0; i < children.size() - 1; i++) {
+            builder.append(children.get(i).printTree(prefix + (isTail ? "    " : "│   "), false));
         }
-        if (i < keys.size() && keys.get(i) == key) {
-            return false;
+        if (!children.isEmpty()) {
+            builder.append(children.get(children.size() - 1).printTree(prefix + (isTail ? "    " : "│   "), true));
         }
-        if (i < ORDER - 1) {
+        return builder.toString();
+    }
+
+    @Override
+    public String toString() {
+        return printTree("", true);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(keys);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
-        if (i == ORDER - 1 && leaf) {
+        if (obj == null) {
             return false;
         }
-        return children.get(i).isInsertable(key);
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        BTreeNode other = (BTreeNode) obj;
+        return Objects.equals(keys, other.keys);
     }
 
-    boolean search(int key) {
-        int i = 0;
-        while (i < keys.size() && key > keys.get(i)) {
-            i++;
-        }
-        if (i < keys.size() && keys.get(i) == key) {
-            return true;
-        }
-        if (leaf) {
-            return false;
-        }
-        return children.get(i).search(key);
-    }
 }
